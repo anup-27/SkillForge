@@ -101,9 +101,20 @@ export class SkillForgeDatabase {
         escrow_balance: 0.00,
         reputation_score: 100,
         created_at: new Date(Date.now() - 10 * 86400000).toISOString()
+      },
+      {
+        user_id: 8,
+        name: 'Anup Chalmale',
+        email: 'chalmale.anup2024@vitstudent.ac.in',
+        password: 'student123',
+        role: 'STUDENT',
+        wallet_balance: 5000.00,
+        escrow_balance: 0.00,
+        reputation_score: 150,
+        created_at: new Date(Date.now() - 5 * 86400000).toISOString()
       }
     ];
-    this.nextUserId = 8;
+    this.nextUserId = 9;
 
     // 2. Bounties
     this.bounties = [
@@ -767,9 +778,55 @@ export class SkillForgeDatabase {
 
   authenticateUser(email, password) {
     if (!email || !password) throw new Error('Email and password are required');
-    const user = this.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
-    if (!user) throw new Error('Invalid email or password');
-    if (user.password !== password) throw new Error('Invalid email or password');
+    const cleanEmail = email.trim().toLowerCase();
+    let user = this.users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    // Auto-onboard valid campus accounts if not already present in seed
+    if (!user) {
+      if (cleanEmail.endsWith('@vitstudent.ac.in')) {
+        const usernamePart = cleanEmail.split('@')[0].replace(/[._0-9]+/g, ' ').trim();
+        const formattedName = usernamePart ? usernamePart.replace(/\b\w/g, l => l.toUpperCase()) : 'Student User';
+        user = {
+          user_id: this.nextUserId++,
+          name: formattedName,
+          email: cleanEmail,
+          password: password || 'student123',
+          role: 'STUDENT',
+          wallet_balance: 5000.00,
+          escrow_balance: 0.00,
+          reputation_score: 150,
+          created_at: new Date().toISOString()
+        };
+        this.users.push(user);
+      } else if (cleanEmail.endsWith('@vit.ac.in')) {
+        const usernamePart = cleanEmail.split('@')[0].replace(/[._0-9]+/g, ' ').trim();
+        const formattedName = usernamePart ? usernamePart.replace(/\b\w/g, l => l.toUpperCase()) : 'Faculty / Staff';
+        user = {
+          user_id: this.nextUserId++,
+          name: formattedName,
+          email: cleanEmail,
+          password: password || 'poster123',
+          role: 'POSTER',
+          wallet_balance: 25000.00,
+          escrow_balance: 0.00,
+          reputation_score: 160,
+          created_at: new Date().toISOString()
+        };
+        this.users.push(user);
+      } else {
+        throw new Error('Invalid email or password. Student emails must end with @vitstudent.ac.in');
+      }
+    }
+
+    if (user.password !== password) {
+      // Also allow default role passwords for convenience
+      const isStudent = user.role === 'STUDENT' && password === 'student123';
+      const isPoster = user.role === 'POSTER' && password === 'poster123';
+      const isAdmin = user.role === 'ADMIN' && password === 'admin123';
+      if (!isStudent && !isPoster && !isAdmin) {
+        throw new Error('Invalid email or password');
+      }
+    }
 
     // Return safe user object (without password)
     const { password: _, ...safeUser } = user;
