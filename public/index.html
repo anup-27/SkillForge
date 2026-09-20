@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SkillForge — VIT Campus Bounty & Micro-Internship Engine</title>
+  <meta name="description" content="ACID-compliant micro-internship and task-bounty allocation engine for Vellore Institute of Technology (VIT)." />
+  
+  <!-- Google Fonts: Outfit, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-wrapper">
+
+    <!-- ====================================================================
+         VIEW 1: CAMPUS AUTHENTICATION / LOGIN GATEWAY (SHOWN FIRST)
+         ==================================================================== -->
+    <div id="view-login" class="auth-page">
+      <div class="auth-container">
+        <!-- Campus Brand Header -->
+        <div class="auth-brand-header">
+          <div class="auth-brand-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <div class="auth-brand-title">Skill<span>Forge</span></div>
+          <div class="auth-campus-tag">VELLORE INSTITUTE OF TECHNOLOGY</div>
+          <p class="auth-brand-desc">Micro-Internships & Task-Bounty Allocation Engine with Secured Escrow</p>
+        </div>
+
+        <!-- 3 Role Login Cards -->
+        <div class="auth-roles-section">
+          <div class="auth-section-label">Select Your Campus Role to Sign In</div>
+          
+          <div class="auth-roles-grid">
+            <!-- Role 1: Student Hunter -->
+            <div class="auth-role-card student" data-role="STUDENT">
+              <div class="arc-header">
+                <span class="arc-badge student">STUDENT HUNTER</span>
+                <span class="arc-icon">🎓</span>
+              </div>
+              <h3 class="arc-title">Aditi Sharma</h3>
+              <p class="arc-email">aditi.sharma@vitstudent.ac.in</p>
+              <p class="arc-desc">Browse bounties, claim micro-tasks, submit GitHub/Figma solutions, and earn escrow rewards.</p>
+              <div class="arc-credentials">Password: <code>student123</code></div>
+              <button type="button" class="btn btn-arc-login student" data-login-email="aditi.sharma@vitstudent.ac.in" data-login-pass="student123">
+                Log In as Student →
+              </button>
+            </div>
+
+            <!-- Role 2: Faculty / Poster -->
+            <div class="auth-role-card poster" data-role="POSTER">
+              <div class="arc-header">
+                <span class="arc-badge poster">FACULTY POSTER</span>
+                <span class="arc-icon">🏛️</span>
+              </div>
+              <h3 class="arc-title">Dr. Ramesh Rao</h3>
+              <p class="arc-email">ramesh.rao@vit.ac.in</p>
+              <p class="arc-desc">Post lab/club bounties with upfront escrow balance locks, review student PRs, and approve payouts.</p>
+              <div class="arc-credentials">Password: <code>poster123</code></div>
+              <button type="button" class="btn btn-arc-login poster" data-login-email="ramesh.rao@vit.ac.in" data-login-pass="poster123">
+                Log In as Faculty →
+              </button>
+            </div>
+
+            <!-- Role 3: Campus Dean / Admin -->
+            <div class="auth-role-card admin" data-role="ADMIN">
+              <div class="arc-header">
+                <span class="arc-badge admin">SUPER ADMIN</span>
+                <span class="arc-icon">🛡️</span>
+              </div>
+              <h3 class="arc-title">Prof. Vikram Sarabhai</h3>
+              <p class="arc-email">dean.admin@vit.ac.in</p>
+              <p class="arc-desc">Oversee campus task allocation, inspect the immutable audit ledger, and manage treasury balances.</p>
+              <div class="arc-credentials">Password: <code>admin123</code></div>
+              <button type="button" class="btn btn-arc-login admin" data-login-email="dean.admin@vit.ac.in" data-login-pass="admin123">
+                Log In as Admin →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Manual Login Form -->
+        <div class="auth-manual-box">
+          <div class="auth-divider"><span>Or Sign In with Any Campus Email</span></div>
+          <form id="form-auth-manual" class="auth-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="manual-email">Campus Email</label>
+                <input type="email" id="manual-email" required placeholder="e.g. yourname@vitstudent.ac.in" />
+              </div>
+              <div class="form-group">
+                <label for="manual-password">Password</label>
+                <input type="password" id="manual-password" required placeholder="••••••••" />
+              </div>
+            </div>
+            <div id="manual-login-error" class="escrow-warning" style="display:none; text-align:center;"></div>
+            <div style="display:flex; justify-content:center; margin-top:10px;">
+              <button type="submit" class="btn btn-primary btn-glow" style="min-width: 220px;">
+                Authenticate & Enter Portal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 2: MAIN AUTHENTICATED DASHBOARD (SHOWN AFTER LOGIN)
+         ==================================================================== -->
+    <div id="view-dashboard" class="dashboard-view" style="display: none;">
+      <!-- Top Global Navigation Header -->
+      <header class="app-header">
+        <div class="header-inner container">
+          <!-- Logo & Branding -->
+          <div class="brand-group">
+            <div class="brand-icon">
+              <span class="icon-glow"></span>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <div class="brand-text">
+              <div class="brand-title">Skill<span>Forge</span> <span class="brand-campus-pill">VIT</span></div>
+              <div class="brand-subtitle">CAMPUS BOUNTY & ESCROW ALLOCATION ENGINE</div>
+            </div>
+          </div>
+
+          <!-- Navigation Tabs (PostgreSQL Tab Removed) -->
+          <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="bounties">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+              Bounty Board
+            </button>
+            <button class="nav-tab" data-tab="workspace">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/></svg>
+              My Workspace <span id="workspace-badge" class="badge-counter" style="display:none;">0</span>
+            </button>
+            <button class="nav-tab" data-tab="leaderboard">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-2.34"/><path d="M18 14.66V17c0 .55-.45 1-1 1h-2c-.55 0-1-.45-1-1v-2.34"/><path d="M12 2v20"/></svg>
+              Leaderboard
+            </button>
+            <button class="nav-tab" data-tab="ledger">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Audit Ledger
+            </button>
+          </nav>
+
+          <!-- User Controls & Role State -->
+          <div class="user-controls">
+            <!-- Active Profile Card -->
+            <div class="user-profile-badge" id="header-user-badge">
+              <div class="user-avatar" id="header-user-avatar">🎓</div>
+              <div class="user-meta">
+                <span class="user-name" id="header-user-name">Aditi Sharma</span>
+                <span class="user-role-tag STUDENT" id="header-user-role-badge">STUDENT HUNTER</span>
+              </div>
+            </div>
+
+            <!-- Wallet Pill -->
+            <div class="wallet-pill" id="wallet-pill" title="Click to deposit funds">
+              <div class="wallet-icon">₹</div>
+              <div class="wallet-values">
+                <span class="wallet-label" id="header-wallet-label">STUDENT WALLET</span>
+                <div class="wallet-numbers">
+                  <span class="wallet-balance" id="header-wallet-balance">₹0.00</span>
+                  <span class="escrow-balance" id="header-escrow-balance" style="display:none;">(Escrow: ₹0.00)</span>
+                </div>
+              </div>
+              <button class="btn-deposit-sm" id="btn-open-deposit" title="Deposit Funds">+</button>
+            </div>
+
+            <!-- Reputation Badge -->
+            <div class="reputation-badge" id="reputation-badge">
+              <span class="rep-star">★</span>
+              <span class="rep-val" id="header-rep-score">145</span>
+            </div>
+
+            <!-- Dynamic "+ Post Bounty" Button (Posters & Admin only) -->
+            <button id="btn-new-bounty" class="btn btn-primary btn-glow" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Post Bounty
+            </button>
+
+            <!-- Role Switcher & Log Out -->
+            <div class="auth-buttons-group">
+              <button class="btn-switch-role" id="btn-switch-role" title="Switch to another role account">Switch Role</button>
+              <button class="btn-logout" id="btn-logout" title="Sign out of current account">Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Dashboard Content -->
+      <main class="main-content container">
+        <!-- Role-Specific Welcome Hero Banner -->
+        <section class="welcome-hero" id="welcome-hero">
+          <div class="welcome-hero-content">
+            <div class="welcome-role-tag" id="welcome-role-tag">VIT STUDENT HUNTER</div>
+            <h1 class="welcome-title" id="welcome-title">Welcome back, Aditi!</h1>
+            <p class="welcome-desc" id="welcome-desc">Explore open bounties across AI, Web Dev, and Systems. Claim tasks, submit code, and earn guaranteed escrow rewards directly to your wallet.</p>
+          </div>
+          <div class="welcome-hero-actions" id="welcome-hero-actions">
+            <!-- Injected dynamically based on role -->
+          </div>
+        </section>
+
+        <!-- Live Platform Metrics Bar -->
+        <section class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Active Bounties</span>
+              <span class="metric-icon cyan">🎯</span>
+            </div>
+            <div class="metric-value" id="stat-active-bounties">--</div>
+            <div class="metric-footer">Open for student claims</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Escrow Pool Secured</span>
+              <span class="metric-icon indigo">🛡️</span>
+            </div>
+            <div class="metric-value" id="stat-escrow-pool">₹--</div>
+            <div class="metric-footer">100% Guaranteed payouts</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Settled Payouts</span>
+              <span class="metric-icon emerald">💎</span>
+            </div>
+            <div class="metric-value" id="stat-total-paid">₹--</div>
+            <div class="metric-footer">Directly credited to student hunters</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-title">Avg Task Turnaround</span>
+              <span class="metric-icon amber">⚡</span>
+            </div>
+            <div class="metric-value" id="stat-turnaround">48.5 hrs</div>
+            <div class="metric-footer">From claim to approval</div>
+          </div>
+        </section>
+
+        <!-- TAB 1: BOUNTY BOARD -->
+        <section id="tab-bounties" class="tab-pane active">
+          <!-- Filter and Search Bar -->
+          <div class="filter-bar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-input" placeholder="Search tasks by title, skill tag, or keyword..." />
+              <button id="btn-clear-search" class="btn-icon-clear" style="display:none;">✕</button>
+            </div>
+
+            <div class="filter-controls">
+              <!-- Category Chips -->
+              <div class="category-filters" id="category-filters">
+                <button class="cat-pill active" data-category="ALL">All Categories</button>
+                <button class="cat-pill" data-category="AI_ML">🤖 AI & ML</button>
+                <button class="cat-pill" data-category="WEB_DEV">🌐 Web Dev</button>
+                <button class="cat-pill" data-category="DATABASE">🗄️ Database</button>
+                <button class="cat-pill" data-category="DESIGN">🎨 Design</button>
+                <button class="cat-pill" data-category="BUG_FIX">🐛 Bug Fixes</button>
+                <button class="cat-pill" data-category="CONTENT">📝 Content</button>
+              </div>
+
+              <!-- Status & Skill Dropdowns -->
+              <div class="dropdown-filters">
+                <select id="skill-filter" class="filter-select">
+                  <option value="ALL">All Skills</option>
+                </select>
+
+                <select id="status-filter" class="filter-select">
+                  <option value="ALL">All Statuses</option>
+                  <option value="OPEN">Open Only</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="UNDER_REVIEW">Under Review</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bounties Grid -->
+          <div class="bounties-grid" id="bounties-grid">
+            <!-- Dynamically populated with interactive cards -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="bounties-empty" class="empty-state" style="display: none;">
+            <div class="empty-icon">🔍</div>
+            <h3>No bounties match your filters</h3>
+            <p>Try resetting the category filter or searching for another keyword.</p>
+            <button class="btn btn-secondary" id="btn-reset-filters">Reset All Filters</button>
+          </div>
+        </section>
+
+        <!-- TAB 2: MY WORKSPACE (ROLE ADAPTIVE) -->
+        <section id="tab-workspace" class="tab-pane">
+          <div class="workspace-header">
+            <div>
+              <h2 class="section-title" id="workspace-title">My Workspace</h2>
+              <p class="section-subtitle" id="workspace-subtitle">Manage your active claims and track deliverable submissions.</p>
+            </div>
+          </div>
+
+          <div class="workspace-content" id="workspace-content">
+            <!-- Dynamically loaded based on active user role -->
+          </div>
+        </section>
+
+        <!-- TAB 3: STUDENT LEADERBOARD -->
+        <section id="tab-leaderboard" class="tab-pane">
+          <div class="leaderboard-header">
+            <div>
+              <h2 class="section-title">VIT Student Performance & Earnings Leaderboard</h2>
+              <p class="section-subtitle">Real-time student rankings based on verified task completions, reputation points, and turnaround efficiency.</p>
+            </div>
+          </div>
+
+          <!-- Podium for Top 3 -->
+          <div class="podium-grid" id="podium-grid">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Leaderboard Table -->
+          <div class="table-container">
+            <table class="data-table" id="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Student Hunter</th>
+                  <th>VIT Email</th>
+                  <th>Reputation</th>
+                  <th>Tasks Completed</th>
+                  <th>Completion Rate</th>
+                  <th>Total Earned (₹)</th>
+                  <th>Avg Turnaround</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TAB 4: AUDIT LEDGER -->
+        <section id="tab-ledger" class="tab-pane">
+          <div class="ledger-header">
+            <div>
+              <h2 class="section-title">Immutable Payout Audit Ledger</h2>
+              <p class="section-subtitle">Every completed bounty generates a cryptographic audit record verifying direct escrow-to-student balance transfers.</p>
+            </div>
+            <button class="btn btn-secondary" id="btn-refresh-ledger">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              Refresh Stream
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table ledger-table">
+              <thead>
+                <tr>
+                  <th>Tx Reference</th>
+                  <th>Task Title</th>
+                  <th>From (Poster)</th>
+                  <th>To (Student)</th>
+                  <th>Amount Settled</th>
+                  <th>Timestamp</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ====================================================================
+         GLOBAL MODALS
+         ==================================================================== -->
+
+    <!-- 1. Bounty Full Details Modal -->
+    <div id="modal-bounty-detail" class="modal-backdrop">
+      <div class="modal-card modal-detail-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="category-tag" id="detail-category">AI_ML</div>
+            <div>
+              <h3 class="modal-title" id="detail-title">Task Title</h3>
+              <p class="modal-subtitle" id="detail-poster">Posted by Dr. Ramesh Rao</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal="modal-bounty-detail">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="detail-section">
+            <h4>Description & Deliverables</h4>
+            <p id="detail-desc" class="detail-desc-text">Full task description...</p>
+          </div>
+
+          <div class="detail-section">
+            <h4>Required Skills</h4>
+            <div id="detail-skills" class="skills-list"></div>
+          </div>
+
+          <div class="detail-meta-grid">
+            <div class="detail-meta-item">
+              <span class="dmi-lbl">Guaranteed Escrow:</span>
+              <strong id="detail-reward" class="text-emerald">₹0.00</strong>
+            </div>
+            <div class="detail-meta-item">
+              <span class="dmi-lbl">Claimant Slots:</span>
+              <span id="detail-capacity">1 / 1</span>
+            </div>
+            <div class="detail-meta-item">
+              <span class="dmi-lbl">Deadline:</span>
+              <span id="detail-deadline">--</span>
+            </div>
+            <div class="detail-meta-item">
+              <span class="dmi-lbl">Status:</span>
+              <span id="detail-status" class="status-badge OPEN">OPEN</span>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin-top: 24px;">
+            <button type="button" class="btn btn-secondary" data-close-modal="modal-bounty-detail">Close</button>
+            <button type="button" id="btn-detail-claim" class="btn btn-primary btn-glow">
+              ⚡ Claim This Bounty
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Post New Bounty Modal (For Posters & Admin) -->
+    <div id="modal-new-bounty" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-icon-badge">✨</div>
+            <div>
+              <h3 class="modal-title">Post New Campus Bounty</h3>
+              <p class="modal-subtitle">Funds are automatically locked into your Escrow balance upon creation.</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal="modal-new-bounty">&times;</button>
+        </div>
+        <form id="form-new-bounty" class="modal-form">
+          <div class="form-group">
+            <label for="bounty-title">Task Title *</label>
+            <input type="text" id="bounty-title" required placeholder="e.g. Fine-tune LoRA weights on student AI cluster" maxlength="150" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bounty-category">Category *</label>
+              <select id="bounty-category" required>
+                <option value="AI_ML">🤖 AI & Machine Learning</option>
+                <option value="WEB_DEV">🌐 Web Development</option>
+                <option value="DATABASE">🗄️ Database & Systems</option>
+                <option value="DESIGN">🎨 UI / UX Design</option>
+                <option value="BUG_FIX">🐛 Bug Fixes & Refactoring</option>
+                <option value="CONTENT">📝 Documentation & Content</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="bounty-deadline">Deadline Date & Time *</label>
+              <input type="datetime-local" id="bounty-deadline" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bounty-reward">Reward per Student (₹) *</label>
+              <input type="number" id="bounty-reward" min="100" step="50" value="2500" required />
+            </div>
+
+            <div class="form-group">
+              <label for="bounty-max-claimants">Claimant Capacity (Quota) *</label>
+              <input type="number" id="bounty-max-claimants" min="1" max="10" value="1" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bounty-skills">Required Skills (Comma separated) *</label>
+            <input type="text" id="bounty-skills" required placeholder="e.g. Python, PyTorch, CUDA, Transformers" />
+          </div>
+
+          <div class="form-group">
+            <label for="bounty-description">Task Description & Acceptance Criteria *</label>
+            <textarea id="bounty-description" rows="4" required placeholder="Describe task requirements, deliverables, GitHub repo link, and acceptance tests..."></textarea>
+          </div>
+
+          <!-- Escrow Calculator Box -->
+          <div class="escrow-calc-box">
+            <div class="calc-row">
+              <span>Total Escrow Required:</span>
+              <strong id="calc-total-escrow" class="text-cyan">₹2,500.00</strong>
+            </div>
+            <div class="calc-row">
+              <span>Your Available Wallet:</span>
+              <span id="calc-poster-wallet">₹0.00</span>
+            </div>
+            <div id="calc-escrow-warning" class="escrow-warning" style="display: none;">
+              ⚠️ Insufficient wallet balance! Please deposit funds first.
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal="modal-new-bounty">Cancel</button>
+            <button type="submit" id="btn-submit-bounty" class="btn btn-primary btn-glow">Lock Escrow & Publish Bounty</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. Submit Deliverable Modal (For Students) -->
+    <div id="modal-submit-solution" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-icon-badge">🚀</div>
+            <div>
+              <h3 class="modal-title">Submit Bounty Deliverable</h3>
+              <p class="modal-subtitle" id="submit-bounty-title">Task Title</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal="modal-submit-solution">&times;</button>
+        </div>
+        <form id="form-submit-solution" class="modal-form">
+          <input type="hidden" id="submit-claim-id" />
+          
+          <div class="form-group">
+            <label for="submission-url">Deliverable Link / URL *</label>
+            <input type="url" id="submission-url" required placeholder="https://github.com/username/repo/pull/1 or Figma / Colab link" />
+            <small class="form-hint">Public link to your Pull Request, Figma file, Colab notebook, or demo.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="submission-notes">Implementation Notes (Optional)</label>
+            <textarea id="submission-notes" rows="3" placeholder="Briefly describe what changes were made, how to test, and verify..."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal="modal-submit-solution">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit for Review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. Review & Payout Modal (For Posters & Admin) -->
+    <div id="modal-review-payout" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-icon-badge">⚖️</div>
+            <div>
+              <h3 class="modal-title">Review Submission & Release Escrow</h3>
+              <p class="modal-subtitle" id="review-bounty-title">Task Title</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal="modal-review-payout">&times;</button>
+        </div>
+        <div class="modal-form">
+          <input type="hidden" id="review-claim-id" />
+          
+          <div class="review-meta-box">
+            <div class="meta-row">
+              <span class="meta-lbl">Student Hunter:</span>
+              <strong id="review-student-name">Student Name</strong>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Submission Deliverable:</span>
+              <a id="review-submission-link" href="#" target="_blank" rel="noopener noreferrer" class="link-url">Open Deliverable ↗</a>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Reward Escrow:</span>
+              <strong id="review-reward-amount" class="text-emerald">₹0.00</strong>
+            </div>
+          </div>
+
+          <div class="stored-procedure-callout">
+            <div class="sp-icon">⚡</div>
+            <div class="sp-text">
+              <strong>Atomic Escrow Release:</strong>
+              Approving transfers escrow funds directly to the student's wallet, awards <strong>+15 reputation points</strong>, marks the claim <code>APPROVED</code>, and logs an immutable record in the audit ledger.
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal="modal-review-payout">Cancel</button>
+            <button type="button" id="btn-confirm-approval" class="btn btn-emerald btn-glow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Approve & Release Escrow
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Deposit Funds Modal -->
+    <div id="modal-deposit" class="modal-backdrop">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <div class="modal-icon-badge">💳</div>
+            <div>
+              <h3 class="modal-title">Deposit Virtual Campus Funds</h3>
+              <p class="modal-subtitle">Top up your wallet balance to post new bounties or test allocations.</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close-modal="modal-deposit">&times;</button>
+        </div>
+        <form id="form-deposit" class="modal-form">
+          <div class="quick-amounts">
+            <button type="button" class="btn-quick-amt" data-amount="1000">+ ₹1,000</button>
+            <button type="button" class="btn-quick-amt" data-amount="2500">+ ₹2,500</button>
+            <button type="button" class="btn-quick-amt" data-amount="5000">+ ₹5,000</button>
+            <button type="button" class="btn-quick-amt" data-amount="10000">+ ₹10,000</button>
+          </div>
+
+          <div class="form-group">
+            <label for="deposit-amount">Custom Amount (₹) *</label>
+            <input type="number" id="deposit-amount" min="100" step="100" value="2500" required />
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-close-modal="modal-deposit">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Funds</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
